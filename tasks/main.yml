@@ -1,0 +1,49 @@
+---
+# tasks file for mysql-backup
+- name: Install dependency packages
+  ansible.builtin.package:
+    name: "{{ item }}"
+  with_items:
+    - mailutils
+    - openssl
+    - pigz
+  when: ansible_os_family == 'Debian'
+
+- name: Copy mysql-backup script
+  ansible.builtin.copy:
+    src: "automysqlbackup"
+    dest: "/usr/local/bin/automysqlbackup"
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Create configuration directory
+  ansible.builtin.file:
+    path: "/etc/automysqlbackup"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Create mysql-backup config
+  ansible.builtin.template:
+    src: "automysqlbackup.conf.j2"
+    dest: "/etc/automysqlbackup/automysqlbackup.conf"
+    mode: 0600
+    owner: root
+    group: root
+
+- name: Creates mysql-backup cronjob
+  ansible.builtin.cron:
+    minute: "5"
+    hour: "1"
+    name: "Backup all mysql databases"
+    job: "/usr/local/bin/automysqlbackup"
+
+- name: Create backup destination directory
+  ansible.builtin.file:
+    path: "{{ mysql_backup_destination_dir }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root

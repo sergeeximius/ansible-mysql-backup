@@ -1,0 +1,6 @@
+---
+# defaults file for mysql-backup
+mysql_backup_dbhost: "localhost"
+mysql_backup_dbuser: "root"
+mysql_backup_dbpassword: "StrongPassword"
+mysql_backup_destination_dir: "/mnt/backup/mysql"
